@@ -15,12 +15,16 @@
       "adaptiveIcon": {
         "backgroundColor": "#000000",
         "foregroundImage": "./assets/adaptive-icon.png"
-      }
+      },
+      "permissions": [
+        "android.permission.RECORD_AUDIO"
+      ]
     },
     "web": {
       "bundler": "metro",
       "favicon": "./assets/icon.png"
     },
+    "owner": "golden-aura",
     "plugins": [
       [
         "expo-image-picker",
@@ -29,6 +33,11 @@
           "cameraPermission": "Allow Project 90 to use your camera for progress pictures."
         }
       ]
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "34df8e43-8927-465f-a894-efd2af422af1"
+      }
+    }
   }
 }
