@@ -6,14 +6,20 @@
     "orientation": "portrait",
     "userInterfaceStyle": "dark",
     "scheme": "project90",
+    "icon": "./assets/icon.png",
     "ios": {
       "supportsTablet": true
     },
     "android": {
-      "package": "com.zach.project90"
+      "package": "com.zach.project90",
+      "adaptiveIcon": {
+        "backgroundColor": "#000000",
+        "foregroundImage": "./assets/adaptive-icon.png"
+      }
     },
     "web": {
-      "bundler": "metro"
+      "bundler": "metro",
+      "favicon": "./assets/icon.png"
     },
     "plugins": [
       [
