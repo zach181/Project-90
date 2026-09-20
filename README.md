@@ -31,12 +31,17 @@ You build a **Challenge** from a set of daily **commitments** and pick a **miss 
 ## Screens
 
 - **Today** — your commitments for the day, a photo-backed hero card, this week's
-  rolling mission (hit each commitment ~5 of 7 days)
-- **Progress** — streak/completion ring, a 90-day grid, achievements (real SVG
-  hexagon badges, computed from your streak/day data)
-- **Photos** — every progress photo you've logged, by day
+  rolling mission (hit each commitment ~5 of 7 days), and an optional daily weigh-in.
+  Locking in a day opens a "Day complete" screen with your progress, streak, and the week
+- **Progress** — streak/completion ring, a weight graph that grows as you log, a 90-day
+  grid, achievements (real SVG hexagon badges, computed from your streak/day data)
+- **Photos** — every progress photo you've logged, by day. Add one with **Take photo**
+  (in-app camera with a 3/5/10s timer for hands-free posing) or **Upload**
 - **Groups** — create or join a group by code; see everyone's day/streak
 - **Challenge** — edit commitments, miss rule, restart or delete
+
+Progress photos are copied into the app's permanent storage (the camera/picker only give
+temporary cache files). Weight is stored on-device only — it is never sent to Groups.
 
 Finishing all 90 days shows a recap screen with final stats and a native share sheet.
 

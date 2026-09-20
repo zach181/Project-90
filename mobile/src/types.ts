@@ -70,6 +70,8 @@ export interface DayLog {
   date: string;
   entries: Record<string, EntryValue>;
   note?: string;
+  /** optional body weight in pounds; not a commitment, never affects completion */
+  weight?: number;
   /** epoch ms when the user locked the day in */
   lockedAt?: number;
 }

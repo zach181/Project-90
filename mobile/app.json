@@ -27,6 +27,15 @@
     "owner": "golden-aura",
     "plugins": [
       [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Project 90 to use your camera to take progress photos.",
+          "microphonePermission": false,
+          "recordAudioAndroid": false,
+          "barcodeScannerEnabled": false
+        }
+      ],
+      [
         "expo-image-picker",
         {
           "photosPermission": "Allow Project 90 to access your photos to save progress pictures.",

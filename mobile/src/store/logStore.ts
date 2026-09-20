@@ -14,6 +14,8 @@ interface LogState {
     value: EntryValue | null
   ) => void;
   setNote: (date: string, dayNumber: number, note: string) => void;
+  /** pass null to clear a logged weight */
+  setWeight: (date: string, dayNumber: number, weight: number | null) => void;
   lockDay: (date: string, dayNumber: number) => void;
   unlockDay: (date: string) => void;
   clearAll: () => void;
@@ -42,6 +44,14 @@ export const useLogStore = create<LogState>()(
         set((state) => {
           const day = ensureDay(state.logs, date, dayNumber);
           return { logs: { ...state.logs, [date]: { ...day, dayNumber, note } } };
+        }),
+
+      setWeight: (date, dayNumber, weight) =>
+        set((state) => {
+          const day = ensureDay(state.logs, date, dayNumber);
+          const { weight: _old, ...rest } = day;
+          const next = weight === null ? { ...rest, dayNumber } : { ...rest, dayNumber, weight };
+          return { logs: { ...state.logs, [date]: next } };
         }),
 
       lockDay: (date, dayNumber) =>

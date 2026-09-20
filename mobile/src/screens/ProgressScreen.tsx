@@ -3,6 +3,8 @@ import { View, Text, StyleSheet, Pressable, Modal } from "react-native";
 import { Screen, ScreenHeader, Card, SectionLabel, GhostButton } from "../components/ui";
 import { ProgressRing } from "../components/ProgressRing";
 import { AchievementsModal } from "./AchievementsScreen";
+import { WeightChart } from "../components/WeightChart";
+import { formatWeight, weightSeries } from "../utils/weight";
 import { COLORS, FONTS, RADIUS, SPACING } from "../constants/theme";
 import { useChallengeStore } from "../store/challengeStore";
 import { useLogStore } from "../store/logStore";
@@ -26,6 +28,7 @@ export default function ProgressScreen() {
   if (!challenge) return null;
   const summary = summarize(challenge, logs, todayISO());
   const achievements = computeAchievements(challenge, logs, summary);
+  const weights = weightSeries(challenge, logs);
   const unlockedCount = achievements.filter((a) => a.unlocked).length;
   const completionPct = Math.round(
     (summary.completedDays / Math.max(1, summary.dayNumber > summary.totalDays ? summary.totalDays : summary.dayNumber)) *
@@ -63,6 +66,22 @@ export default function ProgressScreen() {
         </View>
         <Text style={styles.achievementsArrow}>→</Text>
       </Pressable>
+
+      <Card>
+        <SectionLabel>Weight</SectionLabel>
+        {weights.length === 0 ? (
+          <Text style={styles.muted}>
+            Log your weight on the Today tab (it's optional) and your graph will start here — it
+            keeps growing as the days go on.
+          </Text>
+        ) : (
+          <WeightChart
+            points={weights}
+            currentDay={Math.min(Math.max(summary.dayNumber, 1), summary.totalDays)}
+            totalDays={summary.totalDays}
+          />
+        )}
+      </Card>
 
       <Card>
         <SectionLabel>The 90</SectionLabel>
@@ -142,6 +161,9 @@ export default function ProgressScreen() {
                 </View>
               );
             })}
+            {selectedLog?.weight !== undefined ? (
+              <Text style={styles.dayWeight}>⚖️  {formatWeight(selectedLog.weight)} lbs</Text>
+            ) : null}
             {selectedLog?.note ? (
               <Text style={styles.dayNote}>"{selectedLog.note}"</Text>
             ) : null}
@@ -182,6 +204,7 @@ const styles = StyleSheet.create({
   journeyStatIcon: { fontSize: 14, width: 18 },
   journeyStatLabel: { flex: 1, color: COLORS.textMuted, fontSize: 12, fontWeight: "600" },
   journeyStatValue: { color: COLORS.text, fontSize: 14, fontWeight: "800" },
+  dayWeight: { color: COLORS.text, fontSize: 14, fontWeight: "700", marginTop: 4 },
   achievementsRow: {
     flexDirection: "row",
     alignItems: "center",

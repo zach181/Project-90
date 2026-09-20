@@ -4,7 +4,9 @@ import * as ImagePicker from "expo-image-picker";
 import { COLORS, RADIUS, SPACING } from "../constants/theme";
 import type { Commitment, EntryValue } from "../types";
 import { commitmentMet, commitmentProgress } from "../utils/challenge";
+import { persistPhoto } from "../utils/photos";
 import { Stepper } from "./ui";
+import { CameraCaptureModal } from "./CameraCaptureModal";
 
 export function CommitmentRow({
   commitment,
@@ -132,22 +134,8 @@ function renderControl(
         </View>
       );
     }
-    case "photo": {
-      const uri = v?.kind === "photo" ? v.uri : "";
-      return (
-        <View style={styles.photoRow}>
-          {uri ? <Image source={{ uri }} style={styles.thumb} /> : null}
-          <Pressable style={styles.photoBtn} onPress={() => pickPhoto(onChange)}>
-            <Text style={styles.photoBtnText}>{uri ? "Replace photo" : "Add photo"}</Text>
-          </Pressable>
-          {uri ? (
-            <Pressable style={styles.photoBtn} onPress={() => onChange(null)}>
-              <Text style={[styles.photoBtnText, { color: COLORS.red }]}>Remove</Text>
-            </Pressable>
-          ) : null}
-        </View>
-      );
-    }
+    case "photo":
+      return <PhotoControl uri={v?.kind === "photo" ? v.uri : ""} onChange={onChange} />;
     case "text": {
       const text = v?.kind === "text" ? v.text : "";
       return (
@@ -192,10 +180,52 @@ function QuantityAdd({ unit, onAdd }: { unit: string; onAdd: (n: number) => void
   );
 }
 
-async function pickPhoto(onChange: (v: EntryValue | null) => void) {
+/** Photo commitment: take one with the in-app (timer) camera, or upload one from the library. */
+function PhotoControl({
+  uri,
+  onChange,
+}: {
+  uri: string;
+  onChange: (v: EntryValue | null) => void;
+}) {
+  const [cameraOpen, setCameraOpen] = useState(false);
+
+  const save = async (rawUri: string) => {
+    const stored = await persistPhoto(rawUri);
+    onChange({ kind: "photo", uri: stored });
+  };
+
+  return (
+    <View>
+      <View style={styles.photoRow}>
+        {uri ? <Image source={{ uri }} style={styles.thumb} /> : null}
+        <Pressable style={[styles.photoBtn, styles.photoBtnPrimary]} onPress={() => setCameraOpen(true)}>
+          <Text style={[styles.photoBtnText, { color: "#06210F" }]}>
+            {uri ? "📷 Retake" : "📷 Take photo"}
+          </Text>
+        </Pressable>
+        <Pressable style={styles.photoBtn} onPress={() => pickFromLibrary(save)}>
+          <Text style={styles.photoBtnText}>{uri ? "🖼 Upload new" : "🖼 Upload"}</Text>
+        </Pressable>
+        {uri ? (
+          <Pressable style={styles.photoBtn} onPress={() => onChange(null)}>
+            <Text style={[styles.photoBtnText, { color: COLORS.red }]}>Remove</Text>
+          </Pressable>
+        ) : null}
+      </View>
+      <CameraCaptureModal
+        visible={cameraOpen}
+        onClose={() => setCameraOpen(false)}
+        onCaptured={save}
+      />
+    </View>
+  );
+}
+
+async function pickFromLibrary(onPicked: (uri: string) => void) {
   const perm = await ImagePicker.requestMediaLibraryPermissionsAsync();
   if (!perm.granted) {
-    Alert.alert("Permission needed", "Allow photo access to add a progress picture.");
+    Alert.alert("Permission needed", "Allow photo access to upload a progress picture.");
     return;
   }
   const result = await ImagePicker.launchImageLibraryAsync({
@@ -203,7 +233,7 @@ async function pickPhoto(onChange: (v: EntryValue | null) => void) {
     quality: 0.6,
   });
   if (!result.canceled && result.assets[0]) {
-    onChange({ kind: "photo", uri: result.assets[0].uri });
+    onPicked(result.assets[0].uri);
   }
 }
 
@@ -260,6 +290,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 14,
   },
+  photoBtnPrimary: { backgroundColor: COLORS.accent },
   photoBtnText: { color: COLORS.text, fontWeight: "700", fontSize: 13 },
   textInput: {
     color: COLORS.text,

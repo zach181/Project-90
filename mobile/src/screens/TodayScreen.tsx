@@ -6,6 +6,8 @@ import { ProgressRing } from "../components/ProgressRing";
 import { HeroBackground } from "../components/HeroBackground";
 import { WeeklyMissionCard, WeeklyMissionModal } from "./WeeklyMissionScreen";
 import { RecapModal } from "./RecapScreen";
+import { DayCompleteModal } from "./DayCompleteScreen";
+import { WeightCard } from "../components/WeightCard";
 import { COLORS, FONTS, RADIUS, SPACING } from "../constants/theme";
 import { useChallengeStore } from "../store/challengeStore";
 import { useLogStore } from "../store/logStore";
@@ -20,6 +22,7 @@ export default function TodayScreen() {
   const logs = useLogStore((s) => s.logs);
   const setEntry = useLogStore((s) => s.setEntry);
   const setNote = useLogStore((s) => s.setNote);
+  const setWeight = useLogStore((s) => s.setWeight);
   const lockDay = useLogStore((s) => s.lockDay);
   const unlockDay = useLogStore((s) => s.unlockDay);
   const syncStats = useGroupStore((s) => s.syncStats);
@@ -27,6 +30,7 @@ export default function TodayScreen() {
 
   const [missionOpen, setMissionOpen] = useState(false);
   const [recapOpen, setRecapOpen] = useState(false);
+  const [dayCompleteOpen, setDayCompleteOpen] = useState(false);
   const autoShownFor = useRef<string | null>(null);
 
   const date = todayISO();
@@ -132,6 +136,8 @@ export default function TodayScreen() {
             ))
           )}
 
+          <WeightCard weight={todayLog?.weight} onSave={(w) => setWeight(date, dayNumber, w)} />
+
           <View style={{ gap: SPACING.sm, marginTop: SPACING.sm }}>
             <SectionLabel>Note</SectionLabel>
             <TextInput
@@ -163,6 +169,7 @@ export default function TodayScreen() {
               onPress={() => {
                 lockDay(date, dayNumber);
                 pushGroupStats();
+                setDayCompleteOpen(true);
               }}
             />
           )}
@@ -172,6 +179,20 @@ export default function TodayScreen() {
       )}
 
       <WeeklyMissionModal visible={missionOpen} mission={mission} onClose={() => setMissionOpen(false)} />
+      <DayCompleteModal
+        visible={dayCompleteOpen}
+        challenge={challenge}
+        summary={summary}
+        logs={logs}
+        date={date}
+        day={clampedDay}
+        onClose={() => setDayCompleteOpen(false)}
+        onViewRecap={() => {
+          setDayCompleteOpen(false);
+          // Let this modal finish dismissing before presenting the next one (iOS is picky).
+          setTimeout(() => setRecapOpen(true), 400);
+        }}
+      />
       <RecapModal
         visible={recapOpen}
         challenge={challenge}
